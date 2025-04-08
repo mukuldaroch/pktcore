@@ -1,0 +1,21 @@
+name: Build fsplit
+
+on: [push, pull_request]
+
+jobs:
+    build:
+        name: Build on Linux
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: sudo apt update && sudo apt install -y cmake g++
+
+            - name: Configure project with CMake
+              run: cmake -S ${{ github.workspace }} -B ${{ github.workspace }}/build
+
+            - name: Build the project
+              run: cmake --build ${{ github.workspace }}/build
