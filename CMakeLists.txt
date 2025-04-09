@@ -23,10 +23,11 @@ endif()
 set(SOURCES
     src/main.cpp
     src/splitter.cpp
+    src/combiner.cpp
 )
 
 # Add executable
-add_executable(fsplit ${SOURCES} ${HEADER_FILES})
+add_executable(pktcore ${SOURCES} ${HEADER_FILES})
 
 # Link system libraries
-target_include_directories(fsplit PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(pktcore PRIVATE ${CMAKE_SOURCE_DIR}/include)

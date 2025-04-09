@@ -1,2 +1,15 @@
-compile_commands.json
-build/
+# Build stuff
+/build/
+/.cache/
+/compile_commands.json
+
+# Dev-only includes
+/include/test.cpp
+/include/part_no_1
+
+# GUI dev files
+/gui/preload.js
+
+# Misc
+/makepkg.si
+/notes.md
