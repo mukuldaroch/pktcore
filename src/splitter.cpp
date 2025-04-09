@@ -5,6 +5,7 @@
 #include <iostream>
 
 void fsplit() {
+	/*
     std::string filename;
     int no_splits;
     std::cout << "Enter the file name > ";
@@ -38,4 +39,5 @@ void fsplit() {
     // }
     // TODO :
     // ask for the output directory
+    */
 }
