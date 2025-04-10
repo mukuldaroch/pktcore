@@ -4,8 +4,11 @@
 /compile_commands.json
 
 # Dev-only includes
+/include/a.out
+/include/idtest.cpp
 /include/test.cpp
 /include/part_no_1
+/include/test3.cpp
 
 # GUI dev files
 /gui/preload.js
