@@ -1,10 +1,12 @@
 # Build stuff
 /build/
+/backup/
 /.cache/
 /compile_commands.json
 
 # Dev-only includes
 /include/a.out
+/include/filetest
 /include/idtest.cpp
 /include/test.cpp
 /include/part_no_1

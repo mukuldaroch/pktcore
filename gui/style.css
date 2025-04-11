@@ -1,0 +1,138 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: #ffffff;
+  color: #222;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ccc;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.4rem;
+  color: #000;
+}
+
+.nav-links span {
+  margin: 0 8px;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-primary {
+  background-color: #0061ff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: 0.9rem;
+  padding: 10px 30px;
+  color: #444;
+}
+
+/* Main Section */
+.main {
+  padding: 30px;
+  text-align: center;
+}
+
+.main h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* Upload Box */
+.upload-box {
+  background-color: #45999e;
+  margin: 0 auto 30px;
+  padding: 40px;
+  max-width: 700px;
+  border-radius: 10px;
+  border: 2px dotted #fff;
+}
+
+.choose-files {
+  background-color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Features Section */
+.features {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 30px;
+  text-align: left;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-left,
+.features-right {
+  width: 45%;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.features-right ul {
+  list-style: none;
+}
+
+.features-right li {
+  margin-bottom: 10px;
+}
+
+/* Bottom Section */
+.bottom-section {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #ffffff;
+}
+
+.bottom-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.bottom-section p {
+  font-size: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
