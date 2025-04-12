@@ -1,6 +1,6 @@
-#include <iostream>
+#include "splitter.h"
 using namespace std;
 int main() {
-  cout << "hellow" << endl;
-  return 0;
+    split::no_of_split();
+    return 0;
 }

@@ -5,12 +5,7 @@
 /compile_commands.json
 
 # Dev-only includes
-/include/a.out
-/include/filetest
-/include/idtest.cpp
-/include/test.cpp
-/include/part_no_1
-/include/test3.cpp
+/a.out
 
 # GUI dev files
 /gui/preload.js
@@ -18,3 +13,9 @@
 # Misc
 /makepkg.si
 /notes.md
+/include/a.out
+/include/filetest
+/include/idtest.cpp
+/include/test.cpp
+/include/part_no_1
+/include/test3.cpp

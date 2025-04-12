@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include your include/ directory for headers
 set(HEADER_FILES
-    include/header.h
+    include/full_header.h
+    include/mini_header.h
     include/splitter.h
     include/combiner.h
 )
@@ -22,8 +23,8 @@ endif()
 # Source files
 set(SOURCES
     src/main.cpp
-    src/splitter.cpp
-    src/combiner.cpp
+    # src/splitter.cpp
+    # src/combiner.cpp
 )
 
 # Add executable

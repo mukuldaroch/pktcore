@@ -1,19 +1,27 @@
+#include "full_header.h"
 #include "pkt_utils.h"
-#include "splitter.h"
 using namespace std;
 int main() {
-    // utils::create_empty_file(0);
-    // utils::create_empty_file(1);
+  std::string filename = "part_no_0";
 
-    // Write_Full_Header("part_no_0",
-    //                   Full_Header(1, 2, 3, 4, 5, 6, 7, "test"));
-    // Write_Mini_Header("part_no_1",
-    //                   Mini_Header(utils::generate_file_id(), 7, 2));
-    // cout << utils::getFileSize("part_no_1") << '\n';
-    // Read_And_Print_Mini_Header("part_no_1");
-    // cout << utils::getFileSize("part_no_0") << '\n';
-    // Read_And_Print_Full_Header("part_no_0");
+  int no_of_splits = 888;
 
-    split::printBinaryRangeAsText("filetest", 40, 80);
-    return 0;
+  // get the size
+  int filesize = utils::getFileSize(filename);
+
+  // calculate no of packets
+  int payload_size = filesize / no_of_splits;
+
+  // create a empty file
+  utils::create_empty_file(0);
+  // write full header in full header packet
+  int version = 1, flag = 0;
+  Full_Header full_header = header(utils::generate_file_id(),0, no_of_splits,
+                                   flag, payload_size, filesize, filename);
+  Write_Full_Header("part_no_0", full_header);
+  cout << utils::getFileSize("part_no_0") << '\n';
+  Read_And_Print_Full_Header("part_no_0");
+
+  // split::printBinaryRangeAsText("filetest", 40, 80);
+  return 0;
 }
