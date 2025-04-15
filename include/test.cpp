@@ -1,27 +1,38 @@
-#include "full_header.h"
-#include "pkt_utils.h"
-using namespace std;
+#include "splitter.h"
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+std::vector<uint8_t> FETCH_BYTES(const std::string &filename, size_t byte_start,
+                                 size_t byte_end) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        std::cerr << "Could not open file: " << filename << "\n";
+        return {};
+    }
+
+    if (byte_end <= byte_start) {
+        std::cerr << "Invalid byte range.\n";
+        return {};
+    }
+
+    file.seekg(byte_start);
+    size_t num_bytes = byte_end - byte_start;
+    std::vector<uint8_t> bytes(num_bytes);
+    file.read(reinterpret_cast<char *>(bytes.data()), num_bytes);
+
+    if (file.gcount() != num_bytes) {
+        std::cerr << "Error reading the expected number of bytes.\n";
+        return {};
+    }
+    return bytes;
+}
+
 int main() {
-  std::string filename = "part_no_0";
-
-  int no_of_splits = 888;
-
-  // get the size
-  int filesize = utils::getFileSize(filename);
-
-  // calculate no of packets
-  int payload_size = filesize / no_of_splits;
-
-  // create a empty file
-  utils::create_empty_file(0);
-  // write full header in full header packet
-  int version = 1, flag = 0;
-  Full_Header full_header = header(utils::generate_file_id(),0, no_of_splits,
-                                   flag, payload_size, filesize, filename);
-  Write_Full_Header("part_no_0", full_header);
-  cout << utils::getFileSize("part_no_0") << '\n';
-  Read_And_Print_Full_Header("part_no_0");
-
-  // split::printBinaryRangeAsText("filetest", 40, 80);
-  return 0;
+    splitter::SPLITTER();
+    return 0;
 }

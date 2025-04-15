@@ -1,61 +1,38 @@
 #pragma once
-#include <array>
-#include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <string>
+// namespace fs = std::filesystem;
+
 namespace combiner {
 
-struct Combiner_Full_Header {
-    std::array<uint8_t, 1> version;
-    std::array<uint8_t, 2> partNumber;
-    std::array<uint8_t, 2> totalParts;
-    std::array<uint8_t, 1> flag;
-    std::array<uint8_t, 5> payloadSize;
-    std::array<uint8_t, 5> packetSize;
-    std::array<uint8_t, 5> reserved;
-};
+// void list_files(const std::filesystem::path &path) {
+//     for (const auto &entry : std::filesystem::directory_iterator(path)) {
+//         std::cout << entry.path() << std::endl;
+//     }
+// }
+//
 
-inline uint32_t bytes_to_int(const std::array<uint8_t, 5> &bytes,
-                             size_t num_bytes) {
-    uint32_t result = 0;
-    for (size_t i = 0; i < num_bytes && i < bytes.size(); ++i) {
-        result |= static_cast<uint32_t>(bytes[i]) << (8 * i); // Little endian
+inline void Search_FullHeader(const std::filesystem::path &path) {
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (std::filesystem::is_regular_file(entry)) {
+            std::string filename = entry.path().string();
+            std::cout << "Found file: " << filename << "\n";
+
+            // You can now open this file like:
+            std::ifstream file(filename, std::ios::binary);
+            if (!file) {
+                std::cerr << "Failed to open: " << filename << "\n";
+                continue;
+            }
+
+            // Example: read first 11 bytes (7 for fileID + 4 for partno)
+            char buffer[11];
+            file.read(buffer, 11);
+
+            // Do your logic here...
+            file.close();
+        }
     }
-    return result;
-}
-
-inline uint16_t bytes_to_short(const std::array<uint8_t, 2> &bytes) {
-    return static_cast<uint16_t>(bytes[0] | (bytes[1] << 8)); // Little endian
-}
-
-inline void read_and_print_header(const std::string &filename) {
-    Combiner_Full_Header header{};
-    std::ifstream in(filename, std::ios::binary);
-
-    if (!in) {
-        std::cerr << "Failed to open file: " << filename << "\n";
-        return;
-    }
-
-    in.read(reinterpret_cast<char *>(&header), sizeof(Combiner_Full_Header));
-    if (!in) {
-        std::cerr << "Failed to read full header from: " << filename << "\n";
-        return;
-    }
-
-    std::cout << "📦 Combiner_Full_Header Info from file: " << filename << "\n";
-    // std::cout << "  Version      : " << static_cast<int>(header.version[0])
-    // << "\n";
-    std::cout << "  Part Number  : " << bytes_to_short(header.partNumber)
-              << "\n";
-    std::cout << "  Total Parts  : " << bytes_to_short(header.totalParts)
-              << "\n";
-    // std::cout << "  Flag         : " << static_cast<int>(header.flag[0]) <<
-    // "\n";
-    std::cout << "  Payload Size : " << bytes_to_int(header.payloadSize, 5)
-              << "\n";
-    // std::cout << "  Packet Size  : " << bytes_to_int(header.packetSize, 5) <<
-    // "\n";
 }
 } // namespace combiner

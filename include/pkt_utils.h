@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <iosfwd>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -15,20 +16,12 @@
 // 4) getFileSize
 //==============================================================================
 namespace utils {
-
-// - Go to byte 0 (start):         file.seekg(0, std::ios::beg);
-// - Go 5 bytes ahead:             file.seekg(5, std::ios::cur);
-// - Go 3 bytes before end:        file.seekg(-3, std::ios::end);
-/*
- * Read binary data from position a to b
- */
-
 /*
  * brief Get the size of a file in bytes.
  * param filename The name of the file to check.
  * return The size of the file as a `std::streampos`.
  */
-inline std::streampos get_file_size(const std::string &filename) {
+inline std::streampos Get_File_Size(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
         std::cerr << "Error: Could not open file '" << filename
@@ -44,45 +37,37 @@ inline std::streampos get_file_size(const std::string &filename) {
 
     return size;
 }
-
-inline std::vector<bool> read_bits_in_range(const std::string &filename,
-                                            std::streampos a,
-                                            std::streampos b) {
+/*
+ *
+ */
+inline std::vector<uint8_t> Fetch_Bytes(const std::string &filename,
+                                        std::streampos byte_start,
+                                        std::streampos byte_end) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Could not open file: " << filename << "\n";
         return {};
     }
 
-    std::streampos filesize = get_file_size(filename);
-    if (b > filesize) {
-        b = filesize; // Clamp range to EOF
-    }
-
-    std::streamsize size = b - a;
-    if (size <= 0) {
+    if (byte_end <= byte_start) {
         std::cerr << "Invalid byte range.\n";
         return {};
     }
 
-    file.seekg(a);
-    std::vector<char> buffer(size);
-    file.read(buffer.data(), size);
+    file.seekg(byte_start);
+    size_t num_bytes = byte_end - byte_start;
+    std::vector<uint8_t> bytes(num_bytes);
+    file.read(reinterpret_cast<char *>(bytes.data()), num_bytes);
 
-    std::vector<bool> bits;
-    bits.reserve(size * 8); // Pre-allocate for speed
-
-    for (char byte : buffer) {
-        for (int i = 7; i >= 0; --i) { // MSB to LSB
-            bits.push_back((byte >> i) & 1);
-        }
+    if (file.gcount() != num_bytes) {
+        std::cerr << "Error reading the expected number of bytes.\n";
+        return {};
     }
-
-    return bits;
+    return bytes;
 }
 
-inline void write_bits_in_end(const std::string &filename,
-                              const std::vector<bool> &bits) {
+inline void Append_Bytes(const std::string &filename,
+                         const std::vector<uint8_t> &bytes) {
     std::ofstream file(filename,
                        std::ios::binary | std::ios::app); // open in append mode
     if (!file) {
@@ -90,29 +75,10 @@ inline void write_bits_in_end(const std::string &filename,
         return;
     }
 
-    std::vector<char> buffer;
-    char byte = 0;
-    int bit_count = 0;
-
-    for (bool bit : bits) {
-        byte = (byte << 1) | (bit ? 1 : 0);
-        bit_count++;
-
-        if (bit_count == 8) {
-            buffer.push_back(byte);
-            byte = 0;
-            bit_count = 0;
-        }
-    }
-
-    // If there are leftover bits (not a full byte), pad with zeros at the end
-    if (bit_count > 0) {
-        byte <<= (8 - bit_count);
-        buffer.push_back(byte);
-    }
-
-    file.write(buffer.data(), buffer.size());
+    // Write the bytes directly to the file
+    file.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 }
+
 /*
  * Check if a file stream opened successfully
  */
@@ -125,41 +91,20 @@ inline bool check_file_open(const std::ios &file, const std::string &filename,
     }
     return true;
 }
-inline std::string get_file_no(const int &i) {
+
+/*
+ * Check if a file stream opened successfully
+ */
+inline std::string Get_File_Name(const int &i) {
     std::string filename = "part_no_" + std::to_string(i);
     return filename; // position at end
-}
-
-inline std::vector<char> readFileChunk(const std::string &filename,
-                                       std::streampos start,
-                                       std::streampos end) {
-    std::ifstream file(filename, std::ios::binary);
-    std::vector<char> buffer;
-
-    // Ensure start < end
-    if (start >= end) {
-        std::cerr << "Invalid range: start >= end\n";
-        return buffer;
-    }
-
-    std::streamsize chunkSize = end - start;
-    buffer.resize(chunkSize);
-
-    file.seekg(start);
-    if (!file.read(buffer.data(), chunkSize)) {
-        std::cerr << "Failed to read file chunk\n";
-        buffer.clear();
-    }
-
-    return buffer;
 }
 
 /*
  * generate a arandom file id
  * returns the id in binary vector size 5 bytes
  */
-
-inline std::array<uint8_t, 7> generate_file_id() {
+inline std::array<uint8_t, 5> Genrate_File_ID() {
     static bool seeded = false;
     if (!seeded) {
         srand(static_cast<unsigned>(time(0)));
@@ -169,17 +114,18 @@ inline std::array<uint8_t, 7> generate_file_id() {
     const char charset[] =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-    std::array<uint8_t, 7> file_id; // no need for {}
-    for (int i = 0; i < 7; ++i) {
+    std::array<uint8_t, 5> file_id; // no need for {}
+    for (int i = 0; i < 5; ++i) {
         file_id[i] =
             static_cast<uint8_t>(charset[rand() % (sizeof(charset) - 1)]);
     }
 
     return file_id;
 }
-
-// Create an empty file with the given number in its name
-inline std::string create_empty_file(const int &number) {
+/*
+ * Create an empty file with the given number in its name
+ */
+inline std::string Create_Empty_File(const int &number) {
     std::string filename = "part_no_" + std::to_string(number);
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
@@ -432,5 +378,28 @@ inline std::vector<bool> readBitsFromRange(const std::string &filename,
      return value;
  }
 ====================================
+// inline std::vector<char> readFileChunk(const std::string &filename,
+//                                        std::streampos start,
+//                                        std::streampos end) {
+//     std::ifstream file(filename, std::ios::binary);
+//     std::vector<char> buffer;
+//
+//     // Ensure start < end
+//     if (start >= end) {
+//         std::cerr << "Invalid range: start >= end\n";
+//         return buffer;
+//     }
+//
+//     std::streamsize chunkSize = end - start;
+//     buffer.resize(chunkSize);
+//
+//     file.seekg(start);
+//     if (!file.read(buffer.data(), chunkSize)) {
+//         std::cerr << "Failed to read file chunk\n";
+//         buffer.clear();
+//     }
+//
+//     return buffer;
+// }
 */
 } // namespace utils

@@ -1,6 +1,8 @@
 # Build stuff
 /build/
+/test/
 /backup/
+/trash/
 /.cache/
 /compile_commands.json
 
@@ -17,5 +19,7 @@
 /include/filetest
 /include/idtest.cpp
 /include/test.cpp
+/include/test2.cpp
+/include/test
 /include/part_no_1
 /include/test3.cpp
