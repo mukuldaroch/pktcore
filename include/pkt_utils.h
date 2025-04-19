@@ -3,23 +3,40 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
 #include <string>
 #include <vector>
+
 //==============================================================================
 // AVAILABLE FUNCTIONS:
-// 1) readBitsFromRange
-// 2)
-// 3)
-// 4) getFileSize
+// 1) Get_File_Size
+// 2) Fetch_Bytes
+// 3) Append_Bytes
+// 4) Genrate_File_ID
+// 5) Create_Empty_File
 //==============================================================================
 namespace utils {
+
 /*
- * brief Get the size of a file in bytes.
- * param filename The name of the file to check.
- * return The size of the file as a `std::streampos`.
+ * This function returns all vector of all the files inside a directory
+ * - @path : path of the directory
+ */
+inline std::vector<std::string> FETCH_FILES(const std::filesystem::path &path) {
+    std::vector<std::string> files;
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            files.push_back(entry.path().filename().string());
+        }
+    }
+    return files;
+}
+/*
+ * This function returns the size of a given file in bytes.
+ * - @param filename : The name or path of the file to check.
+ * - @return         : The size of the file as std::streampos, or -1 if failed.
  */
 inline std::streampos Get_File_Size(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
@@ -37,8 +54,13 @@ inline std::streampos Get_File_Size(const std::string &filename) {
 
     return size;
 }
+
 /*
- *
+ * Reads bytes from a file between a given byte range [byte_start, byte_end).
+ * - @param filename   : The name of the file to read from.
+ * - @param byte_start : The starting byte position.
+ * - @param byte_end   : The ending byte position (exclusive).
+ * - @return           : A vector of bytes read from the file, empty if failed.
  */
 inline std::vector<uint8_t> Fetch_Bytes(const std::string &filename,
                                         std::streampos byte_start,
@@ -66,6 +88,11 @@ inline std::vector<uint8_t> Fetch_Bytes(const std::string &filename,
     return bytes;
 }
 
+/*
+ * Appends binary data to the end of a file.
+ * - @param filename : The file to append bytes to.
+ * - @param bytes    : A vector of bytes to be written at the end of the file.
+ */
 inline void Append_Bytes(const std::string &filename,
                          const std::vector<uint8_t> &bytes) {
     std::ofstream file(filename,
@@ -80,29 +107,9 @@ inline void Append_Bytes(const std::string &filename,
 }
 
 /*
- * Check if a file stream opened successfully
- */
-inline bool check_file_open(const std::ios &file, const std::string &filename,
-                            const std::string &mode) {
-    if (!file) {
-        std::cerr << "Error: Could not open file '" << filename << "' for "
-                  << mode << ".\n";
-        return false;
-    }
-    return true;
-}
-
-/*
- * Check if a file stream opened successfully
- */
-inline std::string Get_File_Name(const int &i) {
-    std::string filename = "part_no_" + std::to_string(i);
-    return filename; // position at end
-}
-
-/*
- * generate a arandom file id
- * returns the id in binary vector size 5 bytes
+ * Generates a random 5-byte alphanumeric file ID.
+ * - @return: An array of 5 uint8_t representing the unique file ID.
+ * This ID can be used as a unique identifier for a file packets.
  */
 inline std::array<uint8_t, 5> Genrate_File_ID() {
     static bool seeded = false;
@@ -114,7 +121,7 @@ inline std::array<uint8_t, 5> Genrate_File_ID() {
     const char charset[] =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-    std::array<uint8_t, 5> file_id; // no need for {}
+    std::array<uint8_t, 5> file_id;
     for (int i = 0; i < 5; ++i) {
         file_id[i] =
             static_cast<uint8_t>(charset[rand() % (sizeof(charset) - 1)]);
@@ -122,22 +129,39 @@ inline std::array<uint8_t, 5> Genrate_File_ID() {
 
     return file_id;
 }
+
 /*
- * Create an empty file with the given number in its name
+ * Creates an empty file with a filename based on the file ID and part number.
+ * - @param f_id: The 5-byte file ID (as array of uint8_t).
+ * - @param number: The number to append to the filename (e.g., part number).
+ * - @return: The generated filename, or an empty string on failure.
+ * The filename is in the format <HEX(file_id)>_<number>.
  */
-inline std::string Create_Empty_File(const int &number) {
-    std::string filename = "part_no_" + std::to_string(number);
+inline std::string Create_Empty_File(const std::array<uint8_t, 5> &f_id,
+                                     const int &number) {
+    std::string id_str;
+    for (uint8_t byte : f_id) {
+        // Convert each byte to 2-digit hex string
+        char buf[3];
+        snprintf(buf, sizeof(buf), "%02X", byte);
+        id_str += buf;
+    }
+
+    std::string filename = id_str + "_" + std::to_string(number);
+
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Failed to create file: " << filename << "\n";
         return "";
     }
     return filename;
-}
+
+} // namespace utils
 
 //============================================================================
 // grave yard of functions
 //============================================================================
+//
 // /*
 //  * Read a single line from a file
 //  */
@@ -181,8 +205,25 @@ inline std::string Create_Empty_File(const int &number) {
 
  *
  *
- *
- *
+// //
+-----------------------------------------------------------------------------------------
+//  * Check if a file stream opened successfully
+//  */
+// inline bool check_file_open(const std::ios &file, const std::string
+// &filename,
+//                             const std::string &mode) {
+//     if (!file) {
+//         std::cerr << "Error: Could not open file '" << filename << "' for "
+//                   << mode << ".\n";
+//         return false;
+//     }
+//     return true;
+// }
+//  *
+//  *
+//  *
+//  /*
+/*
 inline std::vector<bool> readBitsFromRange(const std::string &filename,
                                            std::streampos a, std::streampos b) {
     std::ifstream file(filename, std::ios::binary);
@@ -401,5 +442,6 @@ inline std::vector<bool> readBitsFromRange(const std::string &filename,
 //
 //     return buffer;
 // }
+//
 */
 } // namespace utils

@@ -1,25 +1,14 @@
 # Build stuff
-/build/
-/test/
-/backup/
-/trash/
 /.cache/
+/build/
 /compile_commands.json
 
 # Dev-only includes
+/test/
+/makepkg.si
 /a.out
+/src/notes.md
 
 # GUI dev files
 /gui/preload.js
 
-# Misc
-/makepkg.si
-/notes.md
-/include/a.out
-/include/filetest
-/include/idtest.cpp
-/include/test.cpp
-/include/test2.cpp
-/include/test
-/include/part_no_1
-/include/test3.cpp

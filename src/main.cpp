@@ -1,7 +1,9 @@
+#include <iostream>
 #include "splitter.h"
-#include <cstdio>
 using namespace std;
 int main() {
-  splitter::SPLITTER();
-  return 0;
+    cout << "Under Development right now ";
+    splitter::SPLITTER();
+
+    return 0;
 }

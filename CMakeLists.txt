@@ -7,11 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include your include/ directory for headers
 set(HEADER_FILES
+    include/combiner.h
+    include/explorer.h
     include/full_header.h
     include/mini_header.h
+    include/pkt_utils.h
     include/splitter.h
-    include/combiner.h
 )
+
+#  third-party  headers
+include_directories(third-party/ftxui/include)
 
 # Find OS-specific dependencies
 if(WIN32)
@@ -23,8 +28,6 @@ endif()
 # Source files
 set(SOURCES
     src/main.cpp
-    # src/splitter.cpp
-    # src/combiner.cpp
 )
 
 # Add executable
