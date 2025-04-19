@@ -38,16 +38,6 @@ After successful build, you'll get an executable inside the build folder:
 ./pktcore
 ```
 
-### 💡 Pro Tips:
-If you're on Windows, use WSL or MSYS2 for the best experience.
-
-If cmake .. fails, make sure your compiler supports C++17. You can check using:
-
-bash
-Copy
-Edit
-g++ --version
-
 ##  Features
 ✅ Split files into packets with fixed-size headers.
 
