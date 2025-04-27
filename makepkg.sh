@@ -10,3 +10,5 @@ cmake -S . -B build
 echo "Building project..."
 cmake --build build
 
+echo "moving pktcore to test dirctory"
+mv build/pktcore test

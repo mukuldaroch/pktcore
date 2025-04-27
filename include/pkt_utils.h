@@ -63,12 +63,17 @@ inline std::streampos Get_File_Size(const std::string &filename) {
  * - @return           : A vector of bytes read from the file, empty if failed.
  */
 inline std::vector<uint8_t> Fetch_Bytes(const std::string &filename,
-                                        std::streampos byte_start,
-                                        std::streampos byte_end) {
-    std::ifstream file(filename, std::ios::binary);
+                                        std::streampos byte_start = 0,
+                                        std::streampos byte_end = -1) {
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
         std::cerr << "Could not open file: " << filename << "\n";
         return {};
+    }
+
+    std::streampos file_size = file.tellg();
+    if (byte_end == -1 || byte_end > file_size) {
+        byte_end = file_size;
     }
 
     if (byte_end <= byte_start) {
@@ -76,15 +81,23 @@ inline std::vector<uint8_t> Fetch_Bytes(const std::string &filename,
         return {};
     }
 
-    file.seekg(byte_start);
-    size_t num_bytes = byte_end - byte_start;
+    size_t num_bytes = static_cast<size_t>(byte_end - byte_start);
     std::vector<uint8_t> bytes(num_bytes);
-    file.read(reinterpret_cast<char *>(bytes.data()), num_bytes);
 
-    if (file.gcount() != num_bytes) {
-        std::cerr << "Error reading the expected number of bytes.\n";
+    file.clear(); // Clear any EOF or fail flags
+    file.seekg(byte_start);
+    if (!file) {
+        std::cerr << "Seek failed in file: " << filename << "\n";
         return {};
     }
+
+    file.read(reinterpret_cast<char *>(bytes.data()), num_bytes);
+    if (static_cast<size_t>(file.gcount()) != num_bytes) {
+        std::cerr << "Error reading the expected number of bytes. Got: "
+                  << file.gcount() << " expected: " << num_bytes << "\n";
+        return {};
+    }
+
     return bytes;
 }
 
@@ -137,8 +150,8 @@ inline std::array<uint8_t, 5> Genrate_File_ID() {
  * - @return: The generated filename, or an empty string on failure.
  * The filename is in the format <HEX(file_id)>_<number>.
  */
-inline std::string Create_Empty_File(const std::array<uint8_t, 5> &f_id,
-                                     const int &number) {
+inline std::string CREATE_EMPTY_HEADER_FILE(const std::array<uint8_t, 5> &f_id,
+                                            const int &number) {
     std::string id_str;
     for (uint8_t byte : f_id) {
         // Convert each byte to 2-digit hex string
@@ -155,9 +168,21 @@ inline std::string Create_Empty_File(const std::array<uint8_t, 5> &f_id,
         return "";
     }
     return filename;
+}
 
-} // namespace utils
-
+/*
+ * Creates an empty file with a filename
+ * - @filename : empty file name to be created
+ * - @return   : The generated filename, or an empty string on failure.
+ */
+inline std::string CREATE_EMPTY_FILE(const std::string &filename) {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        std::cerr << "Failed to create file: " << filename << "\n";
+        return "";
+    }
+    return filename;
+}
 //============================================================================
 // grave yard of functions
 //============================================================================

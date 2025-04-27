@@ -58,6 +58,19 @@ inline void create_packet(std::string file, std::array<uint8_t, 5> file_id,
  */
 inline void SPLITTER();
 
+/*
+ * Main driver function to perform the file splitting operation.
+ * it takes file name inside parameters
+ * packet files.
+ */
+inline void SPLITTER(const std::string &file);
+
+/*
+ * Main driver function to perform the file splitting operation.
+ * it takes file name and no of splits inside parameters
+ * packet files.
+ */
+inline void SPLITTER(const std::string &file, int splits);
 //=================================================================================
 //=================================================================================
 // function coding here
@@ -82,7 +95,7 @@ int input_splits() {
 void full_header(std::array<uint8_t, 5> file_id, int splits,
                  std::string file_name, std::streampos payload_len,
                  std::streampos file_size) {
-    std::string fname = utils::Create_Empty_File(file_id, 0);
+    std::string fname = utils::CREATE_EMPTY_HEADER_FILE(file_id, 0);
     header::Full_Header file_header = header::FULL_HEADER(
         file_id, 0, splits, 0, payload_len, file_size, file_name);
     header::WRITE_FULL_HEADER(fname, file_header);
@@ -91,7 +104,7 @@ void full_header(std::array<uint8_t, 5> file_id, int splits,
 
 void create_packet(std::string file, std::array<uint8_t, 5> file_id, int splits,
                    std::streampos starting_ptr, std::streampos end_ptr) {
-    std::string fname = utils::Create_Empty_File(file_id, splits);
+    std::string fname = utils::CREATE_EMPTY_HEADER_FILE(file_id, splits);
     std::streampos payload_len = end_ptr - starting_ptr;
 
     // Write mini header
@@ -141,4 +154,77 @@ void SPLITTER() {
     }
 }
 
+void SPLITTER(const std::string &file) {
+    // File selection
+    std::vector<std::string> files = utils::FETCH_FILES(".");
+    // Since the file is already passed in as a parameter, we skip file
+    // selection
+    int splits = input_splits();
+
+    // Generate unique file ID
+    auto file_id = utils::Genrate_File_ID();
+
+    // Get file size
+    auto size = utils::Get_File_Size(file);
+    std::cout << "File size: " << size << std::endl;
+
+    // Calculate split size and leftover bytes
+    auto payload_len = size / splits;
+    auto leftover_bytes = size % splits;
+
+    // Create full header (split 0)
+    full_header(file_id, splits, file, payload_len, size);
+
+    // Splitting logic
+    std::streampos starting_ptr = 0, end_ptr = 0;
+
+    for (int i = 1; i <= splits; i++) {
+        if (leftover_bytes > 0) {
+            end_ptr += payload_len + 1;
+            leftover_bytes--;
+        } else {
+            end_ptr += payload_len;
+        }
+
+        create_packet(file, file_id, i, starting_ptr, end_ptr);
+        starting_ptr = end_ptr;
+    }
+}
+
+void SPLITTER(const std::string &file, int no_of_splits) {
+    // File selection
+    std::vector<std::string> files = utils::FETCH_FILES(".");
+    // Since the file is already passed in as a parameter, we skip file
+    // selection
+    int splits = no_of_splits;
+
+    // Generate unique file ID
+    auto file_id = utils::Genrate_File_ID();
+
+    // Get file size
+    auto size = utils::Get_File_Size(file);
+    std::cout << "File size: " << size << std::endl;
+
+    // Calculate split size and leftover bytes
+    auto payload_len = size / splits;
+    auto leftover_bytes = size % splits;
+
+    // Create full header (split 0)
+    full_header(file_id, splits, file, payload_len, size);
+
+    // Splitting logic
+    std::streampos starting_ptr = 0, end_ptr = 0;
+
+    for (int i = 1; i <= splits; i++) {
+        if (leftover_bytes > 0) {
+            end_ptr += payload_len + 1;
+            leftover_bytes--;
+        } else {
+            end_ptr += payload_len;
+        }
+
+        create_packet(file, file_id, i, starting_ptr, end_ptr);
+        starting_ptr = end_ptr;
+    }
+}
 } // namespace splitter
