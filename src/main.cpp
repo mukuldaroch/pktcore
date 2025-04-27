@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         std::string arg1 = argv[1];
 
-        if (arg1 == "listcommands" || arg1 == "--list-commands") {
+        if (arg1 == "help" || arg1 == "--help") {
             std::cout << "--version" << '\n';
             std::cout << "--split" << '\n';
             std::cout << "--combine" << '\n';
@@ -64,19 +64,30 @@ int main(int argc, char *argv[]) {
             }
 
         } else if (arg1 == "list" || arg1 == "--list") {
+            if (argc > 2) {
+                std::string fname = argv[2];
 
-            return 0;
+                std::string file = combiner::Detect_PCORE_Files(fname);
+                auto var = combiner::BuildMinHeapForFile(file);
+                combiner::PrintMinHeap(var);
+                return 0;
+                // Get the file name from the second argument
+            } else {
+                std::cerr << "Unknown argument: " << arg1 << "\n";
+                std::cerr << "try : --help to list available commands\n";
+                return 0;
+            }
         } else if (arg1 == "show" || arg1 == "--show") {
             combiner::SHOW_PCORE_FILES();
             return 0;
         } else {
 
             std::cerr << "Unknown argument: " << arg1 << "\n";
-            std::cerr << "Use --list-commands to list available commands\n";
+            std::cerr << "try : --help to list available commands\n";
         }
     } else {
         std::cout << "No arguments provided.\n";
-        std::cout << "Use --list-commands to list available commands\n";
+        std::cout << "try : --help to list available commands\n";
     }
     return 0;
 }
